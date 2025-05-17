@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
-import { App } from '@slack/bolt';
-import { getProjectManager } from './project.js';
+const dotenv = require('dotenv');
+const { App } = require('@slack/bolt');
+const { getProjectManager } = require('./project');
 dotenv.config();
 
 // Boltアプリの初期化

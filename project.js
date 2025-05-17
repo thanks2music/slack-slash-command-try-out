@@ -27,4 +27,6 @@ function getProjectManager(projectName) {
   return null;
 }
 
-export { getProjectManager };
+module.exports = {
+  getProjectManager,
+};

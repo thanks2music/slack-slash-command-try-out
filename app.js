@@ -1,7 +1,8 @@
 const dotenv = require('dotenv');
-const { App, ExpressReceiver } = require('@slack/bolt');
-const { getProjectManager } = require('./project');
 dotenv.config();
+const { App, ExpressReceiver } = require('@slack/bolt');
+
+const { getProjectManager, getUserProjects, getProjectsByManager, userIds } = require('./projects');
 
 const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -15,42 +16,108 @@ const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   socketMode: false,
   endpoints: {
-    // Slackからのイベントを受け取るパス
     events: '/slack/events',
   },
-  // 詳細なログを有効化
   logLevel: 'DEBUG',
 });
 
 // ポート番号の設定（デフォルト: 3000）
 const port = process.env.PORT || 3000;
 
-// スラッシュコマンドのリスナーの設定
-app.command('/ito_project', async ({ command, ack, say }) => {
+// スラッシュコマンドのリスナーの設定 - サブコマンド対応
+app.command('/ito_project', async ({ command, ack, respond }) => {
   // コマンドを受け取ったことを確認
   await ack();
 
   try {
-    // コマンドの引数を取得
     const args = command.text.split(' ');
-    const projectName = args[0].toLowerCase();
+    const firstArg = args[0]?.toLowerCase();
 
-    if (!projectName) {
-      await say('プロジェクト名を指定してください。例: `/ito_project bk`');
+    // コマンドが空の場合はヘルプを表示
+    if (!firstArg) {
+      const helpText = `
+*使用方法*:
+- \`/ito_project [プロジェクト名]\` - プロジェクトの担当者を表示
+- \`/ito_project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
+- \`/ito_project list\` - すべてのプロジェクトと担当者の一覧を表示
+- \`/ito_project help\` - このヘルプを表示
+      `;
+      await respond(helpText);
       return;
     }
 
-    // プロジェクト名に対応する担当者情報を取得
-    const response = getProjectManager(projectName);
+    // サブコマンドの処理
+    switch (firstArg) {
+      // サブコマンド: user - ユーザーの担当プロジェクト表示
+      case 'user':
+        {
+          let userId = args[1]?.trim();
 
-    if (response) {
-      await say(response);
-    } else {
-      await say(`プロジェクト "${projectName}" の情報が見つかりません。`);
+          // ユーザーが指定されていない場合はコマンド実行者のIDを使用
+          if (!userId) {
+            userId = command.user_id;
+          } else if (userId.startsWith('<@') && userId.endsWith('>')) {
+            // メンション形式 <@U1234> からIDを抽出
+            userId = userId.slice(2, -1);
+          }
+
+          const userProjects = getUserProjects(userId);
+
+          if (userProjects.length > 0) {
+            const projectList = userProjects.map(p => `• ${p.name} (${p.key})`).join('\n');
+            await respond(`<@${userId}> さんの担当プロジェクト一覧:\n\n${projectList}`);
+          } else {
+            await respond(`<@${userId}> さんの担当プロジェクトはありません。`);
+          }
+        }
+        break;
+
+      // サブコマンド: list - すべてのプロジェクト一覧表示
+      case 'list':
+        {
+          const projectsByManager = getProjectsByManager();
+          let response = ':clipboard: *プロジェクト一覧*\n\n';
+
+          for (const [userId, projects] of Object.entries(projectsByManager)) {
+            const projectList = projects.map(p => `${p.name}`).join(', ');
+            response += `<@${userId}>: ${projectList}\n`;
+          }
+
+          await respond(response);
+        }
+        break;
+
+      // サブコマンド: help - ヘルプ表示
+      case 'help':
+        {
+          const helpText = `
+*使用方法*:
+- \`/ito_project [プロジェクト名]\` - プロジェクトの担当者を表示
+- \`/ito_project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
+- \`/ito_project list\` - すべてのプロジェクトと担当者の一覧を表示
+- \`/ito_project help\` - このヘルプを表示
+          `;
+          await respond(helpText);
+        }
+        break;
+
+      // デフォルト: プロジェクト名と解釈して担当者を表示
+      default:
+        {
+          const projectName = firstArg;
+          const response = getProjectManager(projectName);
+
+          if (response) {
+            await respond(response);
+          } else {
+            await respond(`プロジェクト "${projectName}" の情報が見つかりません。`);
+          }
+        }
+        break;
     }
   } catch (error) {
     console.error(error);
-    await say('エラーが発生しました。もう一度お試しください。');
+    await respond('エラーが発生しました。もう一度お試しください。');
   }
 });
 

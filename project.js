@@ -1,20 +1,20 @@
 // プロジェクト名と担当者の対応関係を管理するオブジェクト (RenderやRailwayを試したいので一旦このまま進める)
 const projects = {
   bk: {
-    name: "BK",
-    manager: "U07T4L5KT24",
+    name: 'BK',
+    manager: 'U07KE47ESMB',
   },
   sk: {
-    name: "SK",
-    manager: "U07T4L5KT24",
+    name: 'SK',
+    manager: 'U07KE47ESMB',
   },
   vk: {
-    name: "VK",
-    manager: "U07T4L5KT24",
+    name: 'VK',
+    manager: 'U07KE47ESMB',
   },
   yk: {
-    name: "YK",
-    manager: "U07T4L5KT24",
+    name: 'YK',
+    manager: 'U07KE47ESMB',
   },
 };
 

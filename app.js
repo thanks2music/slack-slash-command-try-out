@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
-import { App } from "@slack/bolt";
-import { getProjectManager } from "./project";
+import dotenv from 'dotenv';
+import { App } from '@slack/bolt';
+import { getProjectManager } from './project.js';
 dotenv.config();
 
 // Boltアプリの初期化
@@ -13,17 +13,17 @@ const app = new App({
 const port = process.env.PORT || 3000;
 
 // スラッシュコマンドのリスナーの設定
-app.command("/ito_project", async ({ command, ack, say }) => {
+app.command('/ito_project', async ({ command, ack, say }) => {
   // コマンドを受け取ったことを確認
   await ack();
 
   try {
     // コマンドの引数を取得
-    const args = command.text.split(" ");
+    const args = command.text.split(' ');
     const projectName = args[0].toLowerCase();
 
     if (!projectName) {
-      await say("プロジェクト名を指定してください。例: `/project bk`");
+      await say('プロジェクト名を指定してください。例: `/ito_project bk`');
       return;
     }
 
@@ -37,7 +37,7 @@ app.command("/ito_project", async ({ command, ack, say }) => {
     }
   } catch (error) {
     console.error(error);
-    await say("エラーが発生しました。もう一度お試しください。");
+    await say('エラーが発生しました。もう一度お試しください。');
   }
 });
 

@@ -7,6 +7,10 @@ dotenv.config();
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  socketMode: false,
+  endpoints: {
+    events: '/slack/events', // Slackからのイベントを受け取るパス
+  },
 });
 
 // ポート番号の設定（デフォルト: 3000）

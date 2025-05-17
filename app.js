@@ -2,7 +2,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 const { App, ExpressReceiver } = require('@slack/bolt');
 
-const { getProjectManager, getUserProjects, getProjectsByManager, userIds } = require('./projects');
+const {
+  getProjectManager,
+  getUserProjects,
+  getProjectsByManager,
+  userIds,
+} = require('./projects.js');
 
 const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,

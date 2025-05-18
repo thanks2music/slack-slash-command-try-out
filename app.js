@@ -164,7 +164,57 @@ expressReceiver.app.head('/health', (req, res) => {
 });
 
 expressReceiver.app.get('/ping', (req, res) => {
-  res.status(200).type('text/plain').send('pong');
+  // 現在の時刻を取得（日本時間表示）
+  const currentTime = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+
+  // リクエスト情報をログに記録
+  console.log('\n========== PING REQUEST RECEIVED ==========');
+  console.log(`📅 時刻: ${currentTime}`);
+  console.log(`🌐 メソッド: ${req.method}`);
+  console.log(`🔗 URL: ${req.originalUrl}`);
+  console.log(`🖥️ IP: ${req.ip}`);
+
+  // ヘッダー情報をログに記録
+  console.log('\n📋 リクエストヘッダー:');
+  const importantHeaders = [
+    'user-agent',
+    'x-forwarded-for',
+    'accept',
+    'accept-encoding',
+    'host',
+    'x-cloud-trace-context', // Google Cloudからのリクエストを識別するのに役立つ
+    'x-appengine-country', // Google Cloudからのリクエストで含まれる可能性がある
+  ];
+
+  importantHeaders.forEach(header => {
+    if (req.headers[header]) {
+      console.log(`   ${header}: ${req.headers[header]}`);
+    }
+  });
+
+  // クエリパラメータをログに記録
+  if (Object.keys(req.query).length > 0) {
+    console.log('\n🔍 クエリパラメータ:', JSON.stringify(req.query, null, 2));
+  }
+
+  // 毎回初期化されるけど、一旦入れとく
+  if (!global.pingCount) {
+    global.pingCount = 1;
+  } else {
+    global.pingCount++;
+  }
+
+  console.log(`\n🔢 サーバー起動後のアクセス回数: ${global.pingCount}`);
+  console.log('===========================================\n');
+
+  // Cloud Scheduler用のレスポンスを返す
+  // 十分な長さのテキストを返し、200 OKステータスを確保
+  res
+    .status(200)
+    .set('X-Ping-Time', currentTime)
+    .set('X-Ping-Count', global.pingCount.toString())
+    .type('text/plain')
+    .send(`pong\n\nPing received at: ${currentTime}\nTotal pings: ${global.pingCount}`);
 });
 
 // デバッグログ付きヘルスチェックエンドポイント

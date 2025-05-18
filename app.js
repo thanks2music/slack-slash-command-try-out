@@ -131,9 +131,19 @@ app.error(error => {
   console.error('Boltアプリケーションエラー:', error);
 });
 
-// expressアプリを直接操作
+// expressReceiverから、expressアプリを直接操作出来る
 expressReceiver.app.get('/', (req, res) => {
   res.send('Slack Bot is running!');
+});
+
+// ヘルスチェック用のエンドポイント
+expressReceiver.app.get('/health', (req, res) => {
+  res.status(200).send({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    message: 'The server is running properly. This endpoint is for monitoring services.',
+    version: '1.0.0',
+  });
 });
 
 // デバッグ用のエンドポイント

@@ -163,24 +163,8 @@ expressReceiver.app.head('/health', (req, res) => {
     .end(); // bodyなしでレスポンスを終了
 });
 
-// ヘルスチェック用のプレーンテキスト版エンドポイント
 expressReceiver.app.get('/ping', (req, res) => {
-  res
-    .status(200)
-    .set('X-Health-Status', 'ok')
-    .set('X-Timestamp', new Date().toISOString())
-    .set('Content-Type', 'text/plain')
-    .send('OK - Server is running');
-});
-
-// HEADリクエスト用
-expressReceiver.app.head('/ping', (req, res) => {
-  res
-    .status(200)
-    .set('X-Health-Status', 'ok')
-    .set('X-Timestamp', new Date().toISOString())
-    .set('Content-Type', 'text/plain')
-    .end();
+  res.status(200).type('text/plain').send('pong');
 });
 
 // デバッグログ付きヘルスチェックエンドポイント
@@ -189,6 +173,7 @@ expressReceiver.app.all('/health-debug', (req, res) => {
   console.log('Health check request received:');
   console.log('- Method:', req.method);
   console.log('- Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('- Body:', req.body);
   console.log('- URL:', req.url);
   console.log('- IP:', req.ip);
 
@@ -200,12 +185,6 @@ expressReceiver.app.all('/health-debug', (req, res) => {
     .set('Cache-Control', 'no-cache, no-store, must-revalidate')
     .set('Content-Type', 'text/plain')
     .send('OK');
-});
-
-// デバッグ用のエンドポイント
-expressReceiver.app.post('/slack-debug', (req, res) => {
-  console.log('リクエスト本文:', req.body);
-  res.send('Debug endpoint!');
 });
 
 // アプリの起動

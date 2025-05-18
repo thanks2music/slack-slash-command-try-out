@@ -138,12 +138,68 @@ expressReceiver.app.get('/', (req, res) => {
 
 // ヘルスチェック用のエンドポイント
 expressReceiver.app.get('/health', (req, res) => {
-  res.status(200).send({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    message: 'The server is running properly. This endpoint is for monitoring services.',
-    version: '1.0.0',
-  });
+  // HEADリクエストの場合はボディを自動的に空にして返す。
+  // ステータスコードとヘッダーのみが返される。
+  res
+    .status(200)
+    .set('X-Health-Status', 'ok')
+    .set('X-Timestamp', new Date().toISOString())
+    .set('Content-Type', 'application/json')
+    .send({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      message: 'The server is running properly. This endpoint is for monitoring services.',
+      version: '1.0.0',
+    });
+});
+
+// UptimeRobotのデフォルトは「HEADリクエスト」のため、動作確認用に明示的に指定
+expressReceiver.app.head('/health', (req, res) => {
+  res
+    .status(200)
+    .set('X-Health-Status', 'ok')
+    .set('X-Timestamp', new Date().toISOString())
+    .set('Content-Type', 'application/json')
+    .end(); // bodyなしでレスポンスを終了
+});
+
+// ヘルスチェック用のプレーンテキスト版エンドポイント
+expressReceiver.app.get('/ping', (req, res) => {
+  res
+    .status(200)
+    .set('X-Health-Status', 'ok')
+    .set('X-Timestamp', new Date().toISOString())
+    .set('Content-Type', 'text/plain')
+    .send('OK - Server is running');
+});
+
+// HEADリクエスト用
+expressReceiver.app.head('/ping', (req, res) => {
+  res
+    .status(200)
+    .set('X-Health-Status', 'ok')
+    .set('X-Timestamp', new Date().toISOString())
+    .set('Content-Type', 'text/plain')
+    .end();
+});
+
+// デバッグログ付きヘルスチェックエンドポイント
+expressReceiver.app.all('/health-debug', (req, res) => {
+  // リクエストの詳細をログ出力
+  console.log('Health check request received:');
+  console.log('- Method:', req.method);
+  console.log('- Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('- URL:', req.url);
+  console.log('- IP:', req.ip);
+
+  // レスポンスを返す
+  res
+    .status(200)
+    .set('X-Health-Status', 'ok')
+    .set('X-Monitored-By', 'UptimeRobot')
+    .set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    .set('Content-Type', 'text/plain')
+    .send('OK');
 });
 
 // デバッグ用のエンドポイント

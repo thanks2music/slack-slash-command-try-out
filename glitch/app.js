@@ -197,7 +197,7 @@ expressReceiver.app.get('/ping', (req, res) => {
     console.log('\n🔍 クエリパラメータ:', JSON.stringify(req.query, null, 2));
   }
 
-  // 毎回初期化されるけど、一旦入れとく
+  // 再起動すると初期化されるけど、カウント用に入れとく
   if (!global.pingCount) {
     global.pingCount = 1;
   } else {

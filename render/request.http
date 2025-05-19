@@ -1,0 +1,15 @@
+http://localhost:3000/
+
+###
+
+http://localhost:3000/health
+
+###
+
+http://localhost:3000/ping
+
+###
+
+http://localhost:3000/health-debug
+
+###

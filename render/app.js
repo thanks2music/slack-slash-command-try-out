@@ -1,6 +1,7 @@
 // ES Module形式のimport
 import dotenv from 'dotenv';
-import { App, ExpressReceiver } from '@slack/bolt';
+import pkg from '@slack/bolt';
+const { App, ExpressReceiver } = pkg;
 import { getProjectManager, getUserProjects, getProjectsByManager, userIds } from './projects.js';
 
 dotenv.config();

@@ -2,7 +2,13 @@
 import dotenv from 'dotenv';
 import pkg from '@slack/bolt';
 const { App, ExpressReceiver } = pkg;
-import { getProjectManager, getUserProjects, getProjectsByManager, userIds } from './projects.js';
+import {
+  getProjectManager,
+  getUserProjects,
+  getProjectsByManager,
+  userIds,
+  extractUserId,
+} from './projects.js';
 
 dotenv.config();
 
@@ -53,14 +59,18 @@ app.command('/project', async ({ command, ack, respond }) => {
       // サブコマンド: user - ユーザーの担当プロジェクト表示
       case 'user':
         {
-          let userId = args[1]?.trim();
+          let userId = command.user_id; // デフォルトは実行者
 
-          // ユーザーが指定されていない場合はコマンド実行者のIDを使用
-          if (!userId) {
-            userId = command.user_id;
-          } else if (userId.startsWith('<@') && userId.endsWith('>')) {
-            // メンション形式 <@U1234> からIDを抽出
-            userId = userId.slice(2, -1);
+          // ユーザー指定があれば、そのIDを取得
+          if (args[1]) {
+            const specifiedId = extractUserId(args[1].trim());
+            if (specifiedId) {
+              userId = specifiedId;
+            } else {
+              // IDが抽出できなかった場合はユーザー名をそのまま表示
+              await respond(`ユーザー "${args[1]}" のIDを特定できませんでした。`);
+              return;
+            }
           }
 
           const userProjects = getUserProjects(userId);

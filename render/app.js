@@ -26,7 +26,7 @@ const app = new App({
 const port = process.env.PORT || 3000;
 
 // スラッシュコマンドのリスナーの設定 - サブコマンド対応
-app.command('/ito_project', async ({ command, ack, respond }) => {
+app.command('/project', async ({ command, ack, respond }) => {
   // コマンドを受け取ったことを確認
   await ack();
 
@@ -38,10 +38,10 @@ app.command('/ito_project', async ({ command, ack, respond }) => {
     if (!firstArg) {
       const helpText = `
 *使用方法*:
-- \`/ito_project [プロジェクト名]\` - プロジェクトの担当者を表示
-- \`/ito_project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
-- \`/ito_project list\` - すべてのプロジェクトと担当者の一覧を表示
-- \`/ito_project help\` - このヘルプを表示
+- \`/project [プロジェクト名]\` - プロジェクトの担当者を表示
+- \`/project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
+- \`/project list\` - すべてのプロジェクトと担当者の一覧を表示
+- \`/project help\` - このヘルプを表示
       `;
       await respond(helpText);
       return;
@@ -93,10 +93,10 @@ app.command('/ito_project', async ({ command, ack, respond }) => {
         {
           const helpText = `
 *使用方法*:
-- \`/ito_project [プロジェクト名]\` - プロジェクトの担当者を表示
-- \`/ito_project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
-- \`/ito_project list\` - すべてのプロジェクトと担当者の一覧を表示
-- \`/ito_project help\` - このヘルプを表示
+- \`/project [プロジェクト名]\` - プロジェクトの担当者を表示
+- \`/project user [@ユーザー名]\` - ユーザーの担当プロジェクトを表示（@ユーザー名省略時は自分）
+- \`/project list\` - すべてのプロジェクトと担当者の一覧を表示
+- \`/project help\` - このヘルプを表示
           `;
           await respond(helpText);
         }

@@ -1,13 +1,9 @@
-const dotenv = require('dotenv');
-dotenv.config();
-const { App, ExpressReceiver } = require('@slack/bolt');
+// ES Module形式のimport
+import dotenv from 'dotenv';
+import { App, ExpressReceiver } from '@slack/bolt';
+import { getProjectManager, getUserProjects, getProjectsByManager, userIds } from './projects.js';
 
-const {
-  getProjectManager,
-  getUserProjects,
-  getProjectsByManager,
-  userIds,
-} = require('./projects.js');
+dotenv.config();
 
 const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,

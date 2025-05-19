@@ -1,5 +1,11 @@
-const fs = require('fs');
-const path = require('path');
+// ES Module形式のimport
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// __dirnameの代替（ES Moduleでは__dirnameが使えないため）
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * JSONデータを取得する関数（ファイル優先、環境変数にフォールバック）
@@ -36,46 +42,40 @@ const projectsData = getJsonData('.project.json', 'PROJECTS_JSON');
 const userIds = getJsonData('.user_ids.json', 'USER_IDS_JSON');
 
 /**
- * ユーザーID定数へのアクセサ
- * コード内で userIds.NAME のようにアクセス
- */
-exports.userIds = userIds;
-
-/**
  * プロジェクト名から担当者情報を取得
  */
-exports.getProjectManager = function (projectName) {
+function getProjectManager(projectName) {
   const project = projectsData[projectName.toLowerCase()];
   if (project) {
     return `${project.name}の担当者は、 <@${project.manager}> さんです`;
   }
   return null;
-};
+}
 
 /**
  * ユーザーIDが担当するプロジェクト一覧を取得
  */
-exports.getUserProjects = function (userId) {
+function getUserProjects(userId) {
   // ユーザーが担当するプロジェクトをフィルタリング
   const userProjects = Object.entries(projectsData)
     .filter(([_, project]) => project.manager === userId)
     .map(([key, project]) => ({ key, name: project.name }));
 
   return userProjects;
-};
+}
 
 /**
  * すべてのプロジェクト情報を取得
  */
-exports.getAllProjects = function () {
+function getAllProjects() {
   return projectsData;
-};
+}
 
 /**
  * プロジェクト担当者のグループ化されたマップを取得
  * 戻り値: { userId1: [project1, project2], userId2: [...] }
  */
-exports.getProjectsByManager = function () {
+function getProjectsByManager() {
   const result = {};
 
   // プロジェクトをループしてユーザーごとにグループ化
@@ -91,4 +91,7 @@ exports.getProjectsByManager = function () {
   });
 
   return result;
-};
+}
+
+// ES Module形式のエクスポート
+export { userIds, getProjectManager, getUserProjects, getAllProjects, getProjectsByManager };
